@@ -3,43 +3,33 @@ package acal_lab05.Hw2
 import chisel3._
 import chisel3.util._
 
-class CpxCal(count_bit : Int = 150) extends Module{
+class CpxCal extends Module{
     val io = IO(new Bundle{
         val key_in = Input(UInt(4.W))
-        val value = Output(Valid(UInt(count_bit.W)))    
+        val value = Output(Valid(UInt(32.W)))    
     })
-
-    //please implement your code below
+    
     io.value.valid := false.B
     io.value.bits := 0.U
 
-    val in_buffer = RegNext(io.key_in)
 
-    val store1 = Module(new CpxCal_Store(4))
-    store1.io.key_in := in_buffer //store1.io.key_in := 0.U(4.W)
+    val get_and_store = Module(new GetandStore())
+    get_and_store.io.key_in := io.key_in
 
-    val in2post = Module(new CpxCal_In2post(count_bit))
-    in2post.io.store_in := store1.io.store_dataOut.bits
-    in2post.io.store_in_ifOperand := store1.io.if_operand_dataOut.bits
-    in2post.io.input1_valid := store1.io.store_dataOut.valid
-
-    val calculate= Module(new CpxCal_Calculate(count_bit))
-    calculate.io.store_in := in2post.io.in2post_dataOut.bits
-    calculate.io.store_in_ifOperand := in2post.io.if_operand_in2post_dataOut.bits //true:opeand /false:symbol
-    calculate.io.input1_valid := in2post.io.in2post_dataOut.valid
-
-    val cal_out = RegInit(0.U(count_bit.W))
-    val cal_out_valid  = RegInit(false.B)    
-    cal_out := calculate.io.cal_dataOut.bits
-    cal_out_valid  := calculate.io.cal_dataOut.valid   
+    val in2post = Module(new My_In2post())
+    in2post.io.input_data := get_and_store.io.getData.bits
+    in2post.io.input_data_valid := get_and_store.io.getData.valid
+    in2post.io.input_data_isnum := get_and_store.io.is_num
 
 
-
-    io.value.valid := cal_out_valid
-    io.value.bits := cal_out
+    val post_cal= Module(new Post_Cal())
+    post_cal.io.input_data := in2post.io.in2post_dataOut.bits 
+    post_cal.io.input_data_isnum := in2post.io.is_num_out
+    post_cal.io.input_data_valid := in2post.io.in2post_dataOut.valid
     
-    
-    
-    
+
+    io.value.valid := post_cal.io.results.valid
+    io.value.bits := post_cal.io.results.bits
+
 }
 
