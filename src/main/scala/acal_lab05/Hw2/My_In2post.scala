@@ -58,7 +58,7 @@ class Queue_buffer(val depth: Int) extends Module {
 }
 
 
-class My_In2post(keyin_size : Int =32) extends Module{
+class My_In2post(keyin_size : Int =200) extends Module{
     val io = IO(new Bundle{
         val input_data = Input(UInt(keyin_size.W))
         val input_data_isnum = Input(Bool())
@@ -72,7 +72,7 @@ class My_In2post(keyin_size : Int =32) extends Module{
     io.is_num_out := false.B
     
 
-    val in2post_queue = Module(new Queue_buffer(32))
+    val in2post_queue = Module(new Queue_buffer(200))
     in2post_queue.io.dataIn := io.input_data
     in2post_queue.io.is_num := io.input_data_isnum
 
@@ -86,7 +86,7 @@ class My_In2post(keyin_size : Int =32) extends Module{
     incoming_data := in2post_queue.io.dataOut 
     incoming_isnum :=  in2post_queue.io.is_num_dataOut
 
-    val in2post_stack = Module(new Stack(32))
+    val in2post_stack = Module(new Stack(200))
     in2post_stack.io.push := false.B
     in2post_stack.io.pop := false.B
     in2post_stack.io.en := true.B

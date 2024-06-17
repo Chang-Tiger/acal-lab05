@@ -17,7 +17,7 @@ class Post_Cal extends Module{
 
 
     
-    val buffer_que = Module(new Queue_buffer(32))
+    val buffer_que = Module(new Queue_buffer(200))
     buffer_que.io.dataIn := io.input_data
     buffer_que.io.is_num := io.input_data_isnum
     buffer_que.io.push := io.input_data_valid 
@@ -32,7 +32,7 @@ class Post_Cal extends Module{
     val isequal = Wire(Bool())
     isequal := incoming_data === 15.U && !incoming_isnum
 
-    val pcal_stack = Module(new Stack(32))
+    val pcal_stack = Module(new Stack(200))
     pcal_stack.io.push := false.B
     pcal_stack.io.pop := false.B
     pcal_stack.io.en := true.B
